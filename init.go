@@ -268,8 +268,7 @@ func Create(s core.Sender, c func(string) bool) {
 			return nil
 		}
 		l.Keyword = rt
-		show += fmt.Sprintf("关键词：%s", l.Keyword)
-		return show
+		return nil
 	}, time.Hour)
 	if cancal {
 		return

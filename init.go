@@ -203,6 +203,7 @@ func Create(s core.Sender, c func(string) bool) {
 	if choose == 1 {
 		show += fmt.Sprintf("%s：\n", e按时间自动开奖)
 		s.Reply(show)
+		time.Sleep(time.Microsecond * 500)
 		var tip = "请设置开奖时间 ( 格式：年-月-日 时:分 ) ："
 		var rt = ""
 		for {
@@ -225,10 +226,12 @@ func Create(s core.Sender, c func(string) bool) {
 		}
 		show += l.OpenTime.Format("开奖时间：2006-01-02 15:04\n")
 		s.Reply(show)
+		time.Sleep(time.Microsecond * 500)
 	}
 	if choose == 2 {
 		show += fmt.Sprintf("%s：\n", e按时间自动开奖)
 		s.Reply(show)
+		time.Sleep(time.Microsecond * 500)
 		var tip = "请设置开奖人数 ："
 		var rt = ""
 		for {
@@ -250,6 +253,7 @@ func Create(s core.Sender, c func(string) bool) {
 		}
 		show += fmt.Sprintf("开奖人数：%d", l.OpenNumber)
 		s.Reply(show)
+		time.Sleep(time.Microsecond * 500)
 	}
 	s.Reply("请设置参与关键词：")
 	s.Await(s, func(s core.Sender) interface{} {
@@ -265,6 +269,9 @@ func Create(s core.Sender, c func(string) bool) {
 	if cancal {
 		return
 	}
+	show += fmt.Sprintf("关键词：%s", l.Keyword)
+	s.Reply(show)
+	time.Sleep(time.Microsecond * 500)
 	tip = "已全部设置完成，是否发布？(确定/取消)"
 	var rt = ""
 	for {
@@ -291,5 +298,5 @@ func Create(s core.Sender, c func(string) bool) {
 		lottery.Create(l)
 		s.Reply(fmt.Sprintf("%s 抽奖活动已发布\n参与关键词：%s", l.Name, l.Keyword))
 	}
-	c(cancel)
+	// c(cancel)
 }

@@ -190,6 +190,7 @@ func Create(s core.Sender, c func(string) bool) {
 				cancal = true
 				return nil
 			}
+			choose = core.Int(rt)
 			return nil
 		})
 		if cancal {

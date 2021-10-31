@@ -130,7 +130,9 @@ func Create(s core.Sender, c func(string) bool) {
 		}
 		l.Name = rt
 		show += fmt.Sprintf("奖品名称：%s", l.Name)
-		return show
+		s.Reply(show)
+		time.Sleep(time.Microsecond * 500)
+		return nil
 	}, time.Hour)
 	if cancal {
 		return

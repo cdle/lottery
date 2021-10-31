@@ -151,6 +151,7 @@ func Create(s core.Sender, c func(string) bool) {
 		if prizeNumber != 0 {
 			show += fmt.Sprintf("奖品数量：%d\n", prizeNumber)
 			s.Reply(show)
+			time.Sleep(time.Microsecond * 500)
 			break
 		}
 		if cancal {
@@ -172,7 +173,9 @@ func Create(s core.Sender, c func(string) bool) {
 				for j := range l.Prizes {
 					show += fmt.Sprintf("%d. %s\n", j+1, l.Prizes[j])
 				}
-				return show
+				s.Reply(show)
+				time.Sleep(time.Microsecond * 500)
+				return nil
 			}
 			return fmt.Sprintf("继续设置下一个奖品内容：")
 		}, time.Hour)

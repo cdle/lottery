@@ -131,7 +131,7 @@ func Create(s core.Sender, c func(string) bool) {
 		l.Name = rt
 		show += fmt.Sprintf("奖品名称：%s", l.Name)
 		return show
-	})
+	}, time.Hour)
 	if cancal {
 		return
 	}
@@ -146,7 +146,7 @@ func Create(s core.Sender, c func(string) bool) {
 			}
 			prizeNumber = core.Int(rt)
 			return nil
-		})
+		}, time.Hour)
 
 		if prizeNumber != 0 {
 			show += fmt.Sprintf("奖品数量：%d\n", prizeNumber)
@@ -175,7 +175,7 @@ func Create(s core.Sender, c func(string) bool) {
 				return show
 			}
 			return fmt.Sprintf("继续设置下一个奖品内容：")
-		})
+		}, time.Hour)
 		if cancal {
 			return
 		}
@@ -192,7 +192,7 @@ func Create(s core.Sender, c func(string) bool) {
 			}
 			choose = core.Int(rt)
 			return nil
-		})
+		}, time.Hour)
 		if cancal {
 			return
 		}
@@ -214,7 +214,7 @@ func Create(s core.Sender, c func(string) bool) {
 					return nil
 				}
 				return nil
-			})
+			}, time.Hour)
 			if cancal {
 				return
 			}
@@ -240,7 +240,7 @@ func Create(s core.Sender, c func(string) bool) {
 					return nil
 				}
 				return nil
-			})
+			}, time.Hour)
 			if cancal {
 				return
 			}
@@ -261,7 +261,7 @@ func Create(s core.Sender, c func(string) bool) {
 		l.Keyword = rt
 		show += fmt.Sprintf("关键词：%s", l.Keyword)
 		return show
-	})
+	}, time.Hour)
 	if cancal {
 		return
 	}
@@ -276,7 +276,7 @@ func Create(s core.Sender, c func(string) bool) {
 				return nil
 			}
 			return nil
-		})
+		}, time.Hour)
 		if cancal {
 			return
 		}

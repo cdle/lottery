@@ -89,7 +89,7 @@ func init() {
 					return nil
 				}
 				lu := core.Bucket("lottery-" + fmt.Sprint(l.ID))
-				p := People{
+				p := &People{
 					ID:        fmt.Sprint(s.GetChatID()),
 					CreatedAt: time.Now(),
 					Username:  s.GetUsername(),

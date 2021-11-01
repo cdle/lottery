@@ -66,6 +66,8 @@ func init() {
 		{
 			Rules: []string{`raw [\s\S]+`},
 			Handle: func(s core.Sender) interface{} {
+				s.Continue()
+				return nil
 				id := 0
 				pattern := fmt.Sprintf("i=%v&g=%v&t=", s.GetImType(), s.GetChatID())
 				matched := ""

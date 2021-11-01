@@ -1,24 +1,29 @@
 package lottery
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cdle/sillyGirl/core"
 )
 
 var lottery = core.NewBucket("lottery")
+var newLottery = core.NewBucket("newLottery")
 
 type People struct {
-	ID        int
+	ID        string
 	CreatedAt time.Time //参与时间
 	Username  string    //用户名
 	UserID    string    //用户ID
+	Sequence  int       //
 }
 
 type Lottery struct {
 	ID         int
 	Name       string    //抽奖名称
+	CreatedAt  time.Time //创建时间
 	ImType     string    //群组类型
 	GroupCode  string    //群组编号
 	Prizes     []string  //奖品列表
@@ -61,7 +66,82 @@ func init() {
 		{
 			Rules: []string{`raw [\s\S]+`},
 			Handle: func(s core.Sender) interface{} {
-				s.Continue()
+				id := 0
+				pattern := fmt.Sprintf("i=%v&g=%v&t=", s.GetImType(), s.GetChatID())
+				matched := ""
+				newLottery.Foreach(func(k, v []byte) error {
+					if id = core.Int(string(v)); id != 0 {
+						matched = string(k)
+						if strings.Contains(matched, pattern) {
+							return errors.New("shit")
+						}
+					}
+					return nil
+				})
+				if id == 0 {
+					s.Continue()
+					return nil
+				}
+				l := &Lottery{}
+				lottery.First(l)
+				if !strings.Contains(s.GetContent(), l.Keyword) {
+					s.Continue()
+					return nil
+				}
+				lu := core.Bucket("lottery-" + fmt.Sprint(l.ID))
+				p := People{
+					ID:        fmt.Sprint(s.GetChatID()),
+					CreatedAt: time.Now(),
+					Username:  s.GetUsername(),
+					UserID:    fmt.Sprint(s.GetUserID()),
+				}
+				lu.Create(p)
+				open := false
+				show := "你已参与 城城偷现金 抽奖活动"
+				if l.OpenMethod == e按人数自动开奖 {
+					if p.Sequence >= l.OpenNumber { //开奖
+						open = true
+					}
+					show += fmt.Sprintf("\n参与人数达到 %d 人后将自动开奖", l.UserNumber)
+				} else {
+					if l.OpenTime.Before(time.Now()) { //开奖
+						open = false
+					}
+				}
+				show += fmt.Sprintf("\n当前参与人数：%d", p.Sequence)
+				s.Reply(show)
+				if open {
+					newLottery.Set(matched, "")
+					is := map[int]bool{}
+					for {
+						if len(is) >= l.OpenNumber || len(is) >= p.Sequence {
+							break
+						}
+						i := int(time.Now().UnixNano()) % p.Sequence
+						if _, ok := is[i]; ok {
+							continue
+						}
+						is[i] = true
+					}
+					ps := []string{}
+					n := 0
+					lu.Foreach(func(k, _ []byte) error {
+						if _, ok := is[n]; ok {
+							ps = append(ps, string(k))
+						}
+						n++
+						return nil
+					})
+					names := []string{}
+					for _, p := range ps {
+						people := &People{
+							ID: p,
+						}
+						lu.First(people)
+						names = append(names, people.Username)
+					}
+					s.Reply(fmt.Sprintf("%s 已开奖，\n中奖用户：%s", l.Name, strings.Join(names, " ")))
+				}
 				return nil
 			},
 		},
@@ -69,6 +149,16 @@ func init() {
 			Rules: []string{`raw ^抽奖$`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
+				if !s.IsAdmin() || s.GetChatID() == nil {
+					// lists := ""
+					// i := 0
+					// lottery.Foreach(func(k, v []byte) error {
+					// 	i++
+					// 	lists += fmt.Sprintf("1. 发送『凌晨一点抓小偷』即可参与 城城偷现金 的抽奖活动；", i, )
+					// 	return nil
+					// })
+					return nil
+				}
 				s.Reply(help)
 				var stop = false
 				var c = func(s string) bool {
@@ -120,6 +210,7 @@ func init() {
 func Create(s core.Sender, c func(string) bool) {
 	cancal := false
 	l := &Lottery{}
+	l.CreatedAt = time.Now()
 	show := ""
 	s.Reply("请设置奖品名称：")
 	s.Await(s, func(s core.Sender) interface{} {
@@ -300,7 +391,7 @@ func Create(s core.Sender, c func(string) bool) {
 	}
 	if rt == e确定 {
 		lottery.Create(l)
+		newLottery.Set(fmt.Sprintf("i=%v&g=%v&t=%d", l.ImType, l.GroupCode, time.Now()), l.ID)
 		s.Reply(fmt.Sprintf("%s 抽奖活动已发布\n参与关键词：%s", l.Name, l.Keyword))
 	}
-	// c(cancel)
 }

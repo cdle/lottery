@@ -66,13 +66,14 @@ func init() {
 		{
 			Rules: []string{`raw [\s\S]+`},
 			Handle: func(s core.Sender) interface{} {
-				s.Continue()
-				return nil
+				// s.Continue()
+				// return nil
 				id := 0
 				pattern := fmt.Sprintf("i=%v&g=%v&t=", s.GetImType(), s.GetChatID())
 				matched := ""
 				newLottery.Foreach(func(k, v []byte) error {
-					if id = core.Int(string(v)); id != 0 {
+					if f := core.Int(string(v)); f != 0 {
+						f = id
 						matched = string(k)
 						if strings.Contains(matched, pattern) {
 							return errors.New("shit")
@@ -99,7 +100,7 @@ func init() {
 				}
 				lu.Create(p)
 				open := false
-				show := "你已参与 城城偷现金 抽奖活动"
+				show := fmt.Sprintf("你已参与 %s 抽奖活动", l.Name)
 				if l.OpenMethod == e按人数自动开奖 {
 					if p.Sequence >= l.OpenNumber { //开奖
 						open = true
@@ -151,7 +152,7 @@ func init() {
 			Rules: []string{`raw ^抽奖$`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				if !s.IsAdmin() || s.GetChatID() == nil {
+				if !s.IsAdmin() || s.GetChatID() == 0 {
 					// lists := ""
 					// i := 0
 					// lottery.Foreach(func(k, v []byte) error {

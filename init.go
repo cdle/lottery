@@ -202,7 +202,7 @@ func init() {
 							s.Reply("不支持的指令。")
 						}
 						return nil
-					}, `/[a-z]+`)
+					}, `/[a-z]+`, time.Second)
 				}
 				return "已退出设置"
 			},
@@ -231,7 +231,6 @@ func Create(s core.Sender, c func(string) bool) {
 	if cancal {
 		return
 	}
-
 	var prizeNumber = 0
 	for {
 		s.Reply("请设置奖品数量：")
